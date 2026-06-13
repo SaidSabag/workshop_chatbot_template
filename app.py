@@ -626,23 +626,11 @@ def inject_custom_css():
                 border-radius: 10px;
                 width: 100%;
             }
-            .app-header {
-                padding: 0.25rem 0 1rem 0;
-                margin-bottom: 0.25rem;
-                border-bottom: 1px solid #E2E8F0;
-            }
-            .app-title {
-                font-size: 1.55rem;
-                font-weight: 700;
-                color: #0F172A;
-                line-height: 1.25;
-                margin: 0 0 0.4rem 0;
-            }
             .app-goal {
                 font-size: 0.95rem;
                 color: #475569;
                 line-height: 1.55;
-                margin: 0 0 0.75rem 0;
+                margin: -0.35rem 0 0.75rem 0;
                 max-width: 52rem;
             }
             .app-meta {
@@ -706,18 +694,18 @@ def render_header(company: Dict[str, Any], logo_path: Optional[Path], chunk_coun
             st.markdown("##### 🤖")
 
     with info_col:
+        st.subheader(bot_name)
         st.markdown(
-            f"""
-            <div class="app-header">
-                <div class="app-title">{bot_name}</div>
-                <div class="app-goal">{bot_goal}</div>
-                <div class="app-meta">
-                    <span class="meta-chip meta-chip-company">{company_name}</span>
-                    <span class="meta-chip {knowledge_class}">{knowledge_label}</span>
-                    <span class="meta-chip {status_class}">{status_label}</span>
-                </div>
-            </div>
-            """,
+            f"<p class='app-goal'>{bot_goal}</p>"
+            f"<div class='app-meta'>"
+            f"<span class='meta-chip meta-chip-company'>{company_name}</span>"
+            f"<span class='meta-chip {knowledge_class}'>{knowledge_label}</span>"
+            f"<span class='meta-chip {status_class}'>{status_label}</span>"
+            f"</div>",
+            unsafe_allow_html=True,
+        )
+        st.markdown(
+            "<div style='margin-top:0.85rem; border-bottom:1px solid #E2E8F0;'></div>",
             unsafe_allow_html=True,
         )
 
