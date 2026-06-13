@@ -198,12 +198,14 @@ con humor pero profesional
 
 Valores por defecto en `config/tools.json`; en el taller se cambian desde la barra lateral:
 
-| Tool | Qué hace |
-|------|----------|
-| `search_company_data` | Busca en los ficheros de `company_data/` |
-| `calculator` | Calcula expresiones matemáticas (precios, descuentos, medidas) |
-| `current_datetime` | Devuelve fecha y hora en la zona de `company.json` (España por defecto) |
-| `create_support_ticket` | **Demo:** simula un ticket; **no** envía email ni guarda nada real |
+
+| Tool                    | Qué hace                                                                |
+| ----------------------- | ----------------------------------------------------------------------- |
+| `search_company_data`   | Busca en los ficheros de `company_data/`                                |
+| `calculator`            | Calcula expresiones matemáticas (precios, descuentos, medidas)          |
+| `current_datetime`      | Devuelve fecha y hora en la zona de `company.json` (España por defecto) |
+| `create_support_ticket` | **Demo:** simula un ticket; **no** envía email ni guarda nada real      |
+
 
 Combinaciones sugeridas:
 
@@ -216,11 +218,13 @@ Asistente interno: search_company_data + current_datetime
 
 #### Modelos del taller
 
-| Modelo | Nota |
-|--------|------|
+
+| Modelo          | Nota                                       |
+| --------------- | ------------------------------------------ |
 | `hypernova-60b` | Por defecto; buen equilibrio coste/calidad |
-| `blackstar-10b` | Más barato; ideal para comparar coste |
-| `glm-5-1` | Más caro; comparar precio vs calidad |
+| `blackstar-10b` | Más barato; ideal para comparar coste      |
+| `glm-5-1`       | Más caro; comparar precio vs calidad       |
+
 
 Precios oficiales CompactifAI en `config/model.json` → sección `pricing`.
 
@@ -272,26 +276,26 @@ El mejor modelo para mi caso fue... porque...
 
 Antes de la clase:
 
-- [ ] Plantilla en GitHub (como template repo si es posible).
-- [ ] Despliegue en Streamlit Community Cloud probado (`app.py` como entrypoint).
-- [ ] API key de CompactifAI en secrets de Streamlit:
+- Plantilla en GitHub (como template repo si es posible).
+- Despliegue en Streamlit Community Cloud probado (`app.py` como entrypoint).
+- API key de CompactifAI en secrets de Streamlit:
 
 ```toml
 COMPACTIF_API_KEY = "vuestra-clave"
 COMPACTIF_BASE_URL = "https://api.compactif.ai/v1"
 ```
 
-- [ ] Confirmar que las respuestas muestran tokens, tiempo, coste y tools llamadas.
-- [ ] Confirmar que el logo carga desde `company_logo/`.
-- [ ] Confirmar que el laboratorio de comparación registra filas y permite descargar CSV.
-- [ ] Preparar una pregunta de ejemplo que muestre claramente más tokens con tools activadas (p. ej. «¿Cuánto es 120 × 0,21?»).
-- [ ] Preparar una segunda pregunta de seguimiento para el experimento de historial ON/OFF.
+- Confirmar que las respuestas muestran tokens, tiempo, coste y tools llamadas.
+- Confirmar que el logo carga desde `company_logo/`.
+- Confirmar que el laboratorio de comparación registra filas y permite descargar CSV.
+- Preparar una pregunta de ejemplo que muestre claramente más tokens con tools activadas (p. ej. «¿Cuánto es 120 × 0,21?»).
+- Preparar una segunda pregunta de seguimiento para el experimento de historial ON/OFF.
 
 Durante la clase:
 
-- [ ] Recordar: **no hay subida de archivos en la UI** — todo va a GitHub.
-- [ ] Recordar: `create_support_ticket` es simulación; no envía emails.
-- [ ] Si alguien ve `tokens n/a`, revisar que la API key esté bien en secrets.
+- Recordar: **no hay subida de archivos en la UI** — todo va a GitHub.
+- Recordar: `create_support_ticket` es simulación; no envía emails.
+- Si alguien ve `tokens n/a`, revisar que la API key esté bien en secrets.
 
 ## Referencia rápida de la interfaz
 

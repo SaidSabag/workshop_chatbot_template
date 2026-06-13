@@ -125,7 +125,15 @@ def chunk_text(source: str, text: str, max_chars: int = 1200) -> List[Dict[str, 
     return chunks
 
 
-def load_company_knowledge(uploaded_files=None) -> List[Dict[str, str]]:
+def get_rag_settings(tools_cfg: Dict[str, Any]) -> Dict[str, int]:
+    settings = tools_cfg.get("tools", {}).get("search_company_data", {}).get("chunk_settings", {})
+    return {
+        "max_chars": max(200, min(int(settings.get("max_chars", 1200)), 4000)),
+        "top_k": max(1, min(int(settings.get("top_k", 4)), 10)),
+    }
+
+
+def load_company_knowledge(uploaded_files=None, max_chars: int = 1200) -> List[Dict[str, str]]:
     chunks: List[Dict[str, str]] = []
 
     if DATA_DIR.exists():
@@ -133,12 +141,12 @@ def load_company_knowledge(uploaded_files=None) -> List[Dict[str, str]]:
             if path.name.startswith(".") or path.is_dir():
                 continue
             text = read_text_file(path)
-            chunks.extend(chunk_text(path.name, text))
+            chunks.extend(chunk_text(path.name, text, max_chars=max_chars))
 
     if uploaded_files:
         for uploaded in uploaded_files:
             text = read_uploaded_file(uploaded)
-            chunks.extend(chunk_text(uploaded.name, text))
+            chunks.extend(chunk_text(uploaded.name, text, max_chars=max_chars))
 
     return chunks
 
@@ -252,7 +260,13 @@ def format_company_datetime(company: Dict[str, Any]) -> str:
     return now.strftime(f"%Y-%m-%d %H:%M:%S %Z ({tz_name})")
 
 
-def execute_tool(name: str, arguments: Dict[str, Any], chunks: List[Dict[str, str]], company: Dict[str, Any]) -> str:
+def execute_tool(
+    name: str,
+    arguments: Dict[str, Any],
+    chunks: List[Dict[str, str]],
+    company: Dict[str, Any],
+    rag_settings: Optional[Dict[str, int]] = None,
+) -> str:
     if name == "calculator":
         return safe_calculator(str(arguments.get("expression", "")))
 
@@ -261,7 +275,8 @@ def execute_tool(name: str, arguments: Dict[str, Any], chunks: List[Dict[str, st
 
     if name == "search_company_data":
         query = str(arguments.get("query", ""))
-        results = search_chunks(query, chunks, top_k=4)
+        top_k = (rag_settings or {}).get("top_k", 4)
+        results = search_chunks(query, chunks, top_k=top_k)
         if not results:
             return "No relevant company data found."
         return "\n\n".join(f"Source: {r['source']}\n{r['text']}" for r in results)
@@ -477,6 +492,7 @@ def chat_with_tools(
     chunks: List[Dict[str, str]],
     company: Dict[str, Any],
     tool_names: List[str],
+    rag_settings: Optional[Dict[str, int]] = None,
     max_rounds: int = 3,
 ) -> Tuple[str, Dict[str, Any]]:
     current_messages = list(messages)
@@ -514,7 +530,7 @@ def chat_with_tools(
                 args = {}
 
             metrics["tools_called"].append(name)
-            result = execute_tool(name, args, chunks, company)
+            result = execute_tool(name, args, chunks, company, rag_settings)
             current_messages.append({
                 "role": "tool",
                 "tool_call_id": call.get("id"),
@@ -984,12 +1000,13 @@ def process_user_message(
     chunks: List[Dict[str, str]],
 ):
     use_history = bool(st.session_state.get("use_chat_history", True))
+    rag_settings = get_rag_settings(runtime_tools_cfg)
     use_company_data = company_data_enabled(runtime_tools_cfg)
     st.session_state.messages.append({"role": "user", "content": user_input})
 
     knowledge_block = ""
     if use_company_data:
-        relevant = search_chunks(user_input, chunks, top_k=4)
+        relevant = search_chunks(user_input, chunks, top_k=rag_settings["top_k"])
         if relevant:
             knowledge_block = "\n\nRelevant company knowledge snippets:\n" + "\n\n".join(
                 f"Source: {r['source']}\n{r['text']}" for r in relevant
@@ -1018,6 +1035,7 @@ def process_user_message(
                 chunks,
                 company,
                 tool_names,
+                rag_settings,
             )
             metrics = attach_request_cost(metrics, model_cfg)
         except Exception as exc:
@@ -1072,7 +1090,8 @@ def main():
     model_cfg = load_json(CONFIG_DIR / "model.json", {})
 
     logo_path = find_company_logo()
-    chunks = load_company_knowledge()
+    rag_settings = get_rag_settings(tools_cfg)
+    chunks = load_company_knowledge(max_chars=rag_settings["max_chars"])
     demo_mode = not bool(get_secret("COMPACTIF_API_KEY"))
 
     runtime_tools_cfg = render_sidebar(company, tools_cfg, model_cfg)

@@ -2,7 +2,12 @@
   "tools": {
     "search_company_data": {
       "enabled": true,
-      "student_note": "Turn ON to enable RAG: company files are searched and sent to the model. Turn OFF and no company_data is used."
+      "student_note": "Turn ON to enable RAG: company files are searched and sent to the model. Turn OFF and no company_data is used.",
+      "chunk_settings": {
+        "max_chars": 800,
+        "top_k": 3,
+        "student_note": "max_chars = size of each text chunk when files are split. top_k = how many chunks are retrieved per search. Try smaller chunks or higher top_k and compare tokens in the Comparison lab."
+      }
     },
     "calculator": {
       "enabled": true,
